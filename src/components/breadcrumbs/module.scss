@@ -1,0 +1,33 @@
+.rp_d5_breadcrumbs {
+  .rp-d5-breadcrumbs__nav {
+    width: 100%;
+  }
+
+  .rp-d5-breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45em;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rp-d5-breadcrumbs__item,
+  .rp-d5-breadcrumbs__separator {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .rp-d5-breadcrumbs__link,
+  .rp-d5-breadcrumbs__current,
+  .rp-d5-breadcrumbs__separator {
+    display: inline-block;
+  }
+
+  .rp-d5-breadcrumbs__separator {
+    pointer-events: none;
+    user-select: none;
+  }
+}

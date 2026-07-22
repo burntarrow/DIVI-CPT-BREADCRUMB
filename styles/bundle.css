@@ -1,0 +1,31 @@
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__nav {
+  width: 100%;
+}
+
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__item,
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__separator {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__link,
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__current,
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__separator {
+  display: inline-block;
+}
+
+.rp_d5_breadcrumbs .rp-d5-breadcrumbs__separator {
+  pointer-events: none;
+  user-select: none;
+}
