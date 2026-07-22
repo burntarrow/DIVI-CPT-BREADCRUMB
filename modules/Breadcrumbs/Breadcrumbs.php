@@ -1,16 +1,17 @@
 <?php
 /**
- * Divi 5 Breadcrumbs module.
+ * Divi 5 CPT Breadcrumbs module.
  *
- * @package RenoPlus\Divi5Breadcrumbs
+ * @package BurntArrow\DiviCptBreadcrumbs
  */
 
-namespace RenoPlus\Divi5Breadcrumbs\Modules\Breadcrumbs;
+namespace BurntArrow\DiviCptBreadcrumbs\Modules\Breadcrumbs;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use BurntArrow\DiviCptBreadcrumbs\BreadcrumbResolver;
 use ET\Builder\Framework\DependencyManagement\Interfaces\DependencyInterface;
 use ET\Builder\FrontEnd\BlockParser\BlockParserStore;
 use ET\Builder\FrontEnd\Module\Style;
@@ -18,22 +19,23 @@ use ET\Builder\Packages\Module\Module;
 use ET\Builder\Packages\Module\Options\Css\CssStyle;
 use ET\Builder\Packages\Module\Options\Element\ElementComponents;
 use ET\Builder\Packages\ModuleLibrary\ModuleRegistration;
-use RenoPlus\Divi5Breadcrumbs\BreadcrumbResolver;
 
 /**
- * Native Divi 5 module dependency and renderer.
+ * Native Divi 5 module dependency and server-side renderer.
  */
 class Breadcrumbs implements DependencyInterface {
 
 	/**
 	 * Register the module with Divi's module library.
+	 *
+	 * @return void
 	 */
 	public function load() {
 		add_action(
 			'init',
 			static function () {
 				ModuleRegistration::register_module(
-					RP_D5_BREADCRUMBS_MODULES_JSON_PATH . 'breadcrumbs/',
+					DCB_MODULES_JSON_PATH . 'breadcrumbs/',
 					array(
 						'render_callback' => array( self::class, 'render_callback' ),
 					)
@@ -67,14 +69,14 @@ class Breadcrumbs implements DependencyInterface {
 		$items = self::apply_visibility( $items, $config );
 		$html  = self::render_breadcrumbs( $items, $config );
 
-		$parsed        = $block->parsed_block ?? array();
-		$block_id      = $parsed['id'] ?? '';
-		$store         = $parsed['storeInstance'] ?? '';
-		$order_index   = $parsed['orderIndex'] ?? 0;
-		$parent        = $block_id && $store ? BlockParserStore::get_parent( $block_id, $store ) : null;
-		$parent_attrs  = $parent->attrs ?? array();
-		$module_name   = isset( $block->block_type->name ) ? $block->block_type->name : 'reno-plus/service-breadcrumbs';
-		$module_cat    = isset( $block->block_type->category ) ? $block->block_type->category : 'module';
+		$parsed       = $block->parsed_block ?? array();
+		$block_id     = $parsed['id'] ?? '';
+		$store        = $parsed['storeInstance'] ?? '';
+		$order_index  = $parsed['orderIndex'] ?? 0;
+		$parent       = $block_id && $store ? BlockParserStore::get_parent( $block_id, $store ) : null;
+		$parent_attrs = $parent->attrs ?? array();
+		$module_name  = isset( $block->block_type->name ) ? $block->block_type->name : 'burnt-arrow/cpt-breadcrumbs';
+		$module_cat   = isset( $block->block_type->category ) ? $block->block_type->category : 'module';
 
 		return Module::render(
 			array(
@@ -109,15 +111,16 @@ class Breadcrumbs implements DependencyInterface {
 	 * Add module-specific classes.
 	 *
 	 * @param array $args Divi classname arguments.
+	 * @return void
 	 */
 	public static function module_classnames( $args ) {
 		$instance = $args['classnamesInstance'];
 		$attrs    = $args['attrs'] ?? array();
 		$config   = self::config( $attrs );
 
-		$instance->add( 'rp-d5-breadcrumbs--inline' );
+		$instance->add( 'dcb-breadcrumbs--inline' );
 		if ( self::is_on( $config['schema'] ) ) {
-			$instance->add( 'rp-d5-breadcrumbs--schema' );
+			$instance->add( 'dcb-breadcrumbs--schema' );
 		}
 	}
 
@@ -125,6 +128,7 @@ class Breadcrumbs implements DependencyInterface {
 	 * Generate Divi design styles on the front end.
 	 *
 	 * @param array $args Divi style arguments.
+	 * @return void
 	 */
 	public static function module_styles( $args ) {
 		$attrs    = $args['attrs'] ?? array();
@@ -171,34 +175,34 @@ class Breadcrumbs implements DependencyInterface {
 	private static function custom_css() {
 		return array(
 			'nav'       => array(
-				'label'          => __( 'Breadcrumb navigation', 'reno-plus-divi5-breadcrumbs' ),
+				'label'          => __( 'Breadcrumb navigation', 'divi-cpt-breadcrumbs' ),
 				'subName'        => 'nav',
-				'selectorSuffix' => ' .rp-d5-breadcrumbs__nav',
+				'selectorSuffix' => ' .dcb-breadcrumbs__nav',
 			),
 			'list'      => array(
-				'label'          => __( 'Breadcrumb list', 'reno-plus-divi5-breadcrumbs' ),
+				'label'          => __( 'Breadcrumb list', 'divi-cpt-breadcrumbs' ),
 				'subName'        => 'list',
-				'selectorSuffix' => ' .rp-d5-breadcrumbs__list',
+				'selectorSuffix' => ' .dcb-breadcrumbs__list',
 			),
 			'item'      => array(
-				'label'          => __( 'Breadcrumb item', 'reno-plus-divi5-breadcrumbs' ),
+				'label'          => __( 'Breadcrumb item', 'divi-cpt-breadcrumbs' ),
 				'subName'        => 'item',
-				'selectorSuffix' => ' .rp-d5-breadcrumbs__item',
+				'selectorSuffix' => ' .dcb-breadcrumbs__item',
 			),
 			'link'      => array(
-				'label'          => __( 'Breadcrumb link', 'reno-plus-divi5-breadcrumbs' ),
+				'label'          => __( 'Breadcrumb link', 'divi-cpt-breadcrumbs' ),
 				'subName'        => 'link',
-				'selectorSuffix' => ' .rp-d5-breadcrumbs__link',
+				'selectorSuffix' => ' .dcb-breadcrumbs__link',
 			),
 			'current'   => array(
-				'label'          => __( 'Current item', 'reno-plus-divi5-breadcrumbs' ),
+				'label'          => __( 'Current item', 'divi-cpt-breadcrumbs' ),
 				'subName'        => 'current',
-				'selectorSuffix' => ' .rp-d5-breadcrumbs__current',
+				'selectorSuffix' => ' .dcb-breadcrumbs__current',
 			),
 			'separator' => array(
-				'label'          => __( 'Separator', 'reno-plus-divi5-breadcrumbs' ),
+				'label'          => __( 'Separator', 'divi-cpt-breadcrumbs' ),
 				'subName'        => 'separator',
-				'selectorSuffix' => ' .rp-d5-breadcrumbs__separator',
+				'selectorSuffix' => ' .dcb-breadcrumbs__separator',
 			),
 		);
 	}
@@ -214,12 +218,12 @@ class Breadcrumbs implements DependencyInterface {
 		$value = is_array( $value ) ? $value : array();
 
 		return array(
-			'homeLabel'    => isset( $value['homeLabel'] ) ? (string) $value['homeLabel'] : __( 'Home', 'reno-plus-divi5-breadcrumbs' ),
-			'archiveLabel' => isset( $value['archiveLabel'] ) ? (string) $value['archiveLabel'] : __( 'Services', 'reno-plus-divi5-breadcrumbs' ),
+			'homeLabel'    => isset( $value['homeLabel'] ) ? (string) $value['homeLabel'] : __( 'Home', 'divi-cpt-breadcrumbs' ),
+			'archiveLabel' => isset( $value['archiveLabel'] ) ? (string) $value['archiveLabel'] : '',
 			'separator'    => isset( $value['separator'] ) ? (string) $value['separator'] : '/',
-			'ariaLabel'    => isset( $value['ariaLabel'] ) ? (string) $value['ariaLabel'] : __( 'Breadcrumb', 'reno-plus-divi5-breadcrumbs' ),
-			'postType'     => isset( $value['postType'] ) ? sanitize_key( $value['postType'] ) : 'services',
-			'taxonomy'     => isset( $value['taxonomy'] ) ? sanitize_key( $value['taxonomy'] ) : 'service-category',
+			'ariaLabel'    => isset( $value['ariaLabel'] ) ? (string) $value['ariaLabel'] : __( 'Breadcrumb', 'divi-cpt-breadcrumbs' ),
+			'postType'     => isset( $value['postType'] ) ? sanitize_key( $value['postType'] ) : 'auto',
+			'taxonomy'     => isset( $value['taxonomy'] ) ? sanitize_key( $value['taxonomy'] ) : 'auto',
 			'showHome'     => isset( $value['showHome'] ) ? (string) $value['showHome'] : 'on',
 			'showArchive'  => isset( $value['showArchive'] ) ? (string) $value['showArchive'] : 'on',
 			'showCurrent'  => isset( $value['showCurrent'] ) ? (string) $value['showCurrent'] : 'on',
@@ -267,42 +271,43 @@ class Breadcrumbs implements DependencyInterface {
 		}
 
 		$schema = self::is_on( $config['schema'] );
-		$list   = '<ol class="rp-d5-breadcrumbs__list"' . ( $schema ? ' itemscope itemtype="https://schema.org/BreadcrumbList"' : '' ) . '>';
+		$list   = '<ol class="dcb-breadcrumbs__list"' . ( $schema ? ' itemscope itemtype="https://schema.org/BreadcrumbList"' : '' ) . '>';
 		$count  = count( $items );
 
 		foreach ( $items as $index => $item ) {
-			$position  = $index + 1;
-			$is_last    = $position === $count;
-			$is_current = ! empty( $item['current'] );
-			$item_attr = $schema ? ' itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"' : '';
-			$list     .= '<li class="rp-d5-breadcrumbs__item"' . $item_attr . '>';
+			$position   = $index + 1;
+			$is_last     = $position === $count;
+			$is_current  = ! empty( $item['current'] );
+			$item_attr   = $schema ? ' itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"' : '';
+			$list       .= '<li class="dcb-breadcrumbs__item"' . $item_attr . '>';
 
 			if ( ! $is_current && ! empty( $item['url'] ) ) {
-				$list .= '<a class="rp-d5-breadcrumbs__link" href="' . esc_url( $item['url'] ) . '"' . ( $schema ? ' itemprop="item"' : '' ) . '>';
+				$list .= '<a class="dcb-breadcrumbs__link" href="' . esc_url( $item['url'] ) . '"' . ( $schema ? ' itemprop="item"' : '' ) . '>';
 				$list .= '<span' . ( $schema ? ' itemprop="name"' : '' ) . '>' . esc_html( $item['label'] ) . '</span>';
 				$list .= '</a>';
 			} elseif ( $is_current ) {
-				$list .= '<span class="rp-d5-breadcrumbs__current" aria-current="page"' . ( $schema ? ' itemprop="name"' : '' ) . '>' . esc_html( $item['label'] ) . '</span>';
+				$list .= '<span class="dcb-breadcrumbs__current" aria-current="page"' . ( $schema ? ' itemprop="name"' : '' ) . '>' . esc_html( $item['label'] ) . '</span>';
 				if ( $schema && ! empty( $item['url'] ) ) {
 					$list .= '<meta itemprop="item" content="' . esc_url( $item['url'] ) . '">';
 				}
 			} else {
-				$list .= '<span class="rp-d5-breadcrumbs__label"' . ( $schema ? ' itemprop="name"' : '' ) . '>' . esc_html( $item['label'] ) . '</span>';
+				$list .= '<span class="dcb-breadcrumbs__label"' . ( $schema ? ' itemprop="name"' : '' ) . '>' . esc_html( $item['label'] ) . '</span>';
 			}
 
 			if ( $schema ) {
 				$list .= '<meta itemprop="position" content="' . esc_attr( (string) $position ) . '">';
 			}
-			$list .= '</li>';
 
 			if ( ! $is_last ) {
-				$list .= '<li class="rp-d5-breadcrumbs__separator" aria-hidden="true">' . esc_html( $config['separator'] ) . '</li>';
+				$list .= '<span class="dcb-breadcrumbs__separator" aria-hidden="true">' . esc_html( $config['separator'] ) . '</span>';
 			}
+
+			$list .= '</li>';
 		}
 
 		$list .= '</ol>';
 
-		return '<nav class="rp-d5-breadcrumbs__nav" aria-label="' . esc_attr( $config['ariaLabel'] ) . '">' . $list . '</nav>';
+		return '<nav class="dcb-breadcrumbs__nav" aria-label="' . esc_attr( $config['ariaLabel'] ) . '">' . $list . '</nav>';
 	}
 
 	/**

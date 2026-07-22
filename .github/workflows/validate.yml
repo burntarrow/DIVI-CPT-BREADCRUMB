@@ -1,0 +1,55 @@
+name: Validate plugin
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Lint PHP
+        run: find . -name '*.php' -not -path './node_modules/*' -print0 | xargs -0 -n1 php -l
+
+      - name: Run smoke tests
+        run: npm test
+
+      - name: Validate module metadata
+        run: python3 -m json.tool modules-json/breadcrumbs/module.json >/dev/null
+
+      - name: Validate committed Visual Builder bundle
+        run: |
+          node --check scripts/bundle.js
+          npm run test:js
+
+      - name: Confirm dynamic dropdown bundle hooks
+        run: |
+          grep -q "divi-cpt-breadcrumbs/v1/data-sources" scripts/bundle.js
+          grep -q "breadcrumbInnercontentPosttype" scripts/bundle.js
+          grep -q "breadcrumbInnercontentTaxonomy" scripts/bundle.js
+
+  build-visual-builder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build Visual Builder assets
+        run: npm run build
+
+      - name: Validate generated bundle
+        run: node --check scripts/bundle.js

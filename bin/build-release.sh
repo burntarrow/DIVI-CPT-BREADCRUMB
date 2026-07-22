@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SLUG="reno-plus-divi5-breadcrumbs"
+SLUG="divi-cpt-breadcrumbs"
 BUILD_ROOT="$ROOT/.release"
 BUILD_DIR="$BUILD_ROOT/$SLUG"
 DIST_DIR="$ROOT/dist"
@@ -19,7 +19,7 @@ rm -rf "$BUILD_ROOT"
 mkdir -p "$BUILD_DIR" "$DIST_DIR"
 
 cp -R \
-  reno-plus-divi5-breadcrumbs.php \
+  divi-cpt-breadcrumbs.php \
   includes \
   modules \
   modules-json \

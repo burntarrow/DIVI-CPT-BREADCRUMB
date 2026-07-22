@@ -17,11 +17,11 @@ namespace {
 	function esc_html( $text ) { return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' ); }
 	function esc_attr( $text ) { return htmlspecialchars( (string) $text, ENT_QUOTES, 'UTF-8' ); }
 	function esc_url( $url ) { return htmlspecialchars( (string) $url, ENT_QUOTES, 'UTF-8' ); }
-	function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( $key ) ); }
+	function sanitize_key( $key ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $key ) ); }
 
 	require dirname( __DIR__ ) . '/modules/Breadcrumbs/Breadcrumbs.php';
 
-	$class = 'RenoPlus\\Divi5Breadcrumbs\\Modules\\Breadcrumbs\\Breadcrumbs';
+	$class = 'BurntArrow\\DiviCptBreadcrumbs\\Modules\\Breadcrumbs\\Breadcrumbs';
 	$render = new \ReflectionMethod( $class, 'render_breadcrumbs' );
 	$render->setAccessible( true );
 	$visibility = new \ReflectionMethod( $class, 'apply_visibility' );
@@ -44,12 +44,17 @@ namespace {
 
 	$html = $render->invoke( null, $items, $config );
 	$checks = array(
-		'<nav class="rp-d5-breadcrumbs__nav" aria-label="Breadcrumb">',
+		'<nav class="dcb-breadcrumbs__nav" aria-label="Breadcrumb">',
 		'itemtype="https://schema.org/BreadcrumbList"',
 		'href="https://example.com/service-category/residential/"',
 		'aria-current="page"',
 		'content="4"',
 	);
+	if ( false !== strpos( $html, '<li class="dcb-breadcrumbs__separator"' ) ) {
+		fwrite( STDERR, "Separators must not become extra ordered-list items.\n{$html}\n" );
+		exit( 1 );
+	}
+
 	foreach ( $checks as $needle ) {
 		if ( false === strpos( $html, $needle ) ) {
 			fwrite( STDERR, "Missing expected markup: {$needle}\n{$html}\n" );

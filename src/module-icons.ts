@@ -1,7 +1,7 @@
 import { addFilter } from '@wordpress/hooks';
-import * as serviceBreadcrumbsIcon from './icons/service-breadcrumbs';
+import * as cptBreadcrumbsIcon from './icons/cpt-breadcrumbs';
 
-addFilter('divi.iconLibrary.icon.map', 'renoPlus.serviceBreadcrumbs', (icons) => ({
+addFilter('divi.iconLibrary.icon.map', 'burntArrow.cptBreadcrumbs', icons => ({
   ...icons,
-  [serviceBreadcrumbsIcon.name]: serviceBreadcrumbsIcon,
+  [cptBreadcrumbsIcon.name]: cptBreadcrumbsIcon,
 }));

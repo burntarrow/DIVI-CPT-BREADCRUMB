@@ -1,8 +1,9 @@
 import type { Metadata, ModuleLibrary } from '@divi/types';
 
 import metadata from './module.json';
-import { ServiceBreadcrumbsEdit } from './edit';
-import type { ServiceBreadcrumbsAttrs } from './types';
+import { CptBreadcrumbsEdit } from './edit';
+import { SettingsContent } from './settings-content';
+import type { CptBreadcrumbsAttrs } from './types';
 
 import './style.scss';
 import './module.scss';
@@ -12,7 +13,7 @@ const defaultAttrs = {
     meta: {
       adminLabel: {
         desktop: {
-          value: 'Service Breadcrumbs',
+          value: 'CPT Breadcrumbs',
         },
       },
     },
@@ -22,11 +23,11 @@ const defaultAttrs = {
       desktop: {
         value: {
           homeLabel: 'Home',
-          archiveLabel: 'Services',
+          archiveLabel: '',
           separator: '/',
           ariaLabel: 'Breadcrumb',
-          postType: 'services',
-          taxonomy: 'service-category',
+          postType: 'auto',
+          taxonomy: 'auto',
           showHome: 'on',
           showArchive: 'on',
           showCurrent: 'on',
@@ -53,11 +54,14 @@ const defaultPrintedStyleAttrs = {
   },
 };
 
-export const serviceBreadcrumbs: ModuleLibrary.Module.RegisterDefinition<ServiceBreadcrumbsAttrs> = {
-  metadata: metadata as Metadata.Values<ServiceBreadcrumbsAttrs>,
+export const cptBreadcrumbs: ModuleLibrary.Module.RegisterDefinition<CptBreadcrumbsAttrs> = {
+  metadata: metadata as Metadata.Values<CptBreadcrumbsAttrs>,
   defaultAttrs,
   defaultPrintedStyleAttrs,
+  settings: {
+    content: SettingsContent,
+  },
   renderers: {
-    edit: ServiceBreadcrumbsEdit,
+    edit: CptBreadcrumbsEdit,
   },
 };

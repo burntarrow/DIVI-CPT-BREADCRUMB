@@ -7,11 +7,14 @@ module.exports = {
     bundle: './src/index.ts',
   },
   externals: {
+    lodash: 'lodash',
     react: ['vendor', 'React'],
     'react-dom': ['vendor', 'ReactDOM'],
     '@wordpress/hooks': ['vendor', 'wp', 'hooks'],
+    '@divi/data': ['divi', 'data'],
     '@divi/module': ['divi', 'module'],
     '@divi/module-library': ['divi', 'moduleLibrary'],
+    '@divi/rest': ['divi', 'rest'],
   },
   module: {
     rules: [

@@ -1,18 +1,19 @@
 import { addAction } from '@wordpress/hooks';
 import { registerModule } from '@divi/module-library';
 
-import { serviceBreadcrumbs } from './components/breadcrumbs';
+import { cptBreadcrumbs } from './components/breadcrumbs';
 
 import './module-icons';
 
 addAction(
   'divi.moduleLibrary.registerModuleLibraryStore.after',
-  'renoPlus.serviceBreadcrumbs',
+  'burntArrow.cptBreadcrumbs',
   () => {
-    registerModule(serviceBreadcrumbs.metadata, {
-      defaultAttrs: serviceBreadcrumbs.defaultAttrs,
-      defaultPrintedStyleAttrs: serviceBreadcrumbs.defaultPrintedStyleAttrs,
-      renderers: serviceBreadcrumbs.renderers,
+    registerModule(cptBreadcrumbs.metadata, {
+      defaultAttrs: cptBreadcrumbs.defaultAttrs,
+      defaultPrintedStyleAttrs: cptBreadcrumbs.defaultPrintedStyleAttrs,
+      settings: cptBreadcrumbs.settings,
+      renderers: cptBreadcrumbs.renderers,
     });
   },
 );

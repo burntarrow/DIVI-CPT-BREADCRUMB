@@ -1,213 +1,322 @@
-(function () {
+(() => {
   'use strict';
 
-  if (typeof vendor === 'undefined' || typeof divi === 'undefined') {
-    return;
-  }
+  const React = vendor.React;
+  const { addAction, addFilter } = vendor.wp.hooks;
+  const { useSelect } = divi.data;
+  const {
+    CssStyle,
+    ModuleContainer,
+    ModuleGroups,
+    StyleContainer,
+  } = divi.module;
+  const { registerModule } = divi.moduleLibrary;
+  const { loggedFetch } = divi.rest;
 
-  var React = vendor.React;
-  var hooks = vendor.wp && vendor.wp.hooks;
-  var moduleApi = divi.module;
-  var moduleLibrary = divi.moduleLibrary;
+  const metadata = {"name":"burnt-arrow/cpt-breadcrumbs","d4Shortcode":"","title":"CPT Breadcrumbs","titles":"CPT Breadcrumbs","moduleIcon":"burnt-arrow/module-cpt-breadcrumbs","moduleClassName":"dcb_breadcrumbs","moduleOrderClassName":"dcb_breadcrumbs","category":"module","attributes":{"module":{"type":"object","selector":"{{selector}}","default":{"meta":{"adminLabel":{"desktop":{"value":"CPT Breadcrumbs"}}}},"settings":{"meta":{"adminLabel":{}},"advanced":{"htmlAttributes":{}},"decoration":{"attributes":{},"background":{},"sizing":{},"spacing":{},"border":{},"boxShadow":{},"filters":{},"transform":{},"animation":{},"overflow":{},"disabledOn":{},"transition":{},"position":{},"zIndex":{},"scroll":{},"sticky":{}}}},"breadcrumb":{"type":"object","default":{"innerContent":{"desktop":{"value":{"homeLabel":"Home","archiveLabel":"","separator":"/","ariaLabel":"Breadcrumb","postType":"auto","taxonomy":"auto","showHome":"on","showArchive":"on","showCurrent":"on","schema":"on"}}}},"settings":{"innerContent":{"groupType":"group-items","items":{"homeLabel":{"groupSlug":"contentBreadcrumbs","priority":10,"render":true,"subName":"homeLabel","label":"Home Label","description":"The label used for the site home page.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"archiveLabel":{"groupSlug":"contentBreadcrumbs","priority":20,"render":true,"subName":"archiveLabel","label":"Archive Label Override","description":"Leave blank to use the registered post type or posts-page label.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"separator":{"groupSlug":"contentBreadcrumbs","priority":30,"render":true,"subName":"separator","label":"Separator","description":"Text displayed between breadcrumb items.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"ariaLabel":{"groupSlug":"contentBreadcrumbs","priority":40,"render":true,"subName":"ariaLabel","label":"Accessibility Label","description":"The aria-label applied to the breadcrumb navigation landmark.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"showHome":{"groupSlug":"contentBreadcrumbs","priority":50,"render":true,"subName":"showHome","label":"Show Home","description":"Include the home page in the trail.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"showArchive":{"groupSlug":"contentBreadcrumbs","priority":60,"render":true,"subName":"showArchive","label":"Show Post Type Archive","description":"Include the post type archive before taxonomy terms when that archive exists.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"showCurrent":{"groupSlug":"contentBreadcrumbs","priority":70,"render":true,"subName":"showCurrent","label":"Show Current Item","description":"Include the current post, term, or archive as the final item.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"schema":{"groupSlug":"contentBreadcrumbs","priority":80,"render":true,"subName":"schema","label":"Breadcrumb Schema","description":"Output Schema.org BreadcrumbList microdata.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"postType":{"groupSlug":"contentDataSource","priority":10,"render":true,"subName":"postType","label":"Post Type","description":"Choose a public post type. Automatic uses the current queried post type.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/select","type":"field","props":{"options":{"auto":{"label":"Automatic (current request)"}}}}},"taxonomy":{"groupSlug":"contentDataSource","priority":20,"render":true,"subName":"taxonomy","label":"Taxonomy","description":"Choose a taxonomy associated with the selected post type. Hierarchical taxonomies include their complete parent chain.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/select","type":"field","props":{"options":{"auto":{"label":"Automatic (best taxonomy for the post)"},"none":{"label":"None (omit taxonomy terms)"}}}}}}}}},"linkText":{"type":"object","selector":"{{selector}} .dcb-breadcrumbs__link","settings":{"decoration":{"font":{"priority":10,"component":{"props":{"groupLabel":"Link Text","fieldLabel":"Link"}}}}}},"currentText":{"type":"object","selector":"{{selector}} .dcb-breadcrumbs__current","defaultPrintedStyle":{"decoration":{"font":{"font":{"desktop":{"value":{"weight":"600"}}}}}},"settings":{"decoration":{"font":{"priority":20,"component":{"props":{"groupLabel":"Current Item Text","fieldLabel":"Current Item"}}}}}},"separatorText":{"type":"object","selector":"{{selector}} .dcb-breadcrumbs__separator","settings":{"decoration":{"font":{"priority":30,"component":{"props":{"groupLabel":"Separator Text","fieldLabel":"Separator"}}}}}}},"customCssFields":{"nav":{"subName":"nav","label":"Breadcrumb Navigation","selectorSuffix":" .dcb-breadcrumbs__nav"},"list":{"subName":"list","label":"Breadcrumb List","selectorSuffix":" .dcb-breadcrumbs__list"},"item":{"subName":"item","label":"Breadcrumb Item","selectorSuffix":" .dcb-breadcrumbs__item"},"link":{"subName":"link","label":"Breadcrumb Link","selectorSuffix":" .dcb-breadcrumbs__link"},"current":{"subName":"current","label":"Current Item","selectorSuffix":" .dcb-breadcrumbs__current"},"separator":{"subName":"separator","label":"Separator","selectorSuffix":" .dcb-breadcrumbs__separator"}},"settings":{"content":"auto","design":"auto","advanced":"auto","groups":{"contentBreadcrumbs":{"panel":"content","priority":10,"groupName":"contentBreadcrumbs","multiElements":true,"component":{"name":"divi/composite","props":{"groupLabel":"Breadcrumbs"}}},"contentDataSource":{"panel":"content","priority":20,"groupName":"contentDataSource","multiElements":true,"component":{"name":"divi/composite","props":{"groupLabel":"Data Source"}}}}}};
 
-  if (!React || !hooks || !moduleApi || !moduleLibrary) {
-    return;
-  }
-
-  var metadata = {"name":"reno-plus/service-breadcrumbs","d4Shortcode":"","title":"Service Breadcrumbs","titles":"Service Breadcrumbs","moduleIcon":"reno-plus/module-service-breadcrumbs","moduleClassName":"rp_d5_breadcrumbs","moduleOrderClassName":"rp_d5_breadcrumbs","category":"module","attributes":{"module":{"type":"object","selector":"{{selector}}","default":{"meta":{"adminLabel":{"desktop":{"value":"Service Breadcrumbs"}}}},"settings":{"meta":{"adminLabel":{}},"advanced":{"htmlAttributes":{}},"decoration":{"attributes":{},"background":{},"sizing":{},"spacing":{},"border":{},"boxShadow":{},"filters":{},"transform":{},"animation":{},"overflow":{},"disabledOn":{},"transition":{},"position":{},"zIndex":{},"scroll":{},"sticky":{}}}},"breadcrumb":{"type":"object","default":{"innerContent":{"desktop":{"value":{"homeLabel":"Home","archiveLabel":"Services","separator":"/","ariaLabel":"Breadcrumb","postType":"services","taxonomy":"service-category","showHome":"on","showArchive":"on","showCurrent":"on","schema":"on"}}}},"settings":{"innerContent":{"groupType":"group-items","items":{"homeLabel":{"groupSlug":"contentBreadcrumbs","priority":10,"render":true,"subName":"homeLabel","label":"Home Label","description":"The label used for the site home page.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"archiveLabel":{"groupSlug":"contentBreadcrumbs","priority":20,"render":true,"subName":"archiveLabel","label":"Services Archive Label","description":"The label for the services post type archive breadcrumb.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"separator":{"groupSlug":"contentBreadcrumbs","priority":30,"render":true,"subName":"separator","label":"Separator","description":"Text displayed between breadcrumb items.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"ariaLabel":{"groupSlug":"contentBreadcrumbs","priority":40,"render":true,"subName":"ariaLabel","label":"Accessibility Label","description":"The aria-label applied to the breadcrumb navigation landmark.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"showHome":{"groupSlug":"contentBreadcrumbs","priority":50,"render":true,"subName":"showHome","label":"Show Home","description":"Include the home page in the trail.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"showArchive":{"groupSlug":"contentBreadcrumbs","priority":60,"render":true,"subName":"showArchive","label":"Show Services Archive","description":"Include the services archive before service categories.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"showCurrent":{"groupSlug":"contentBreadcrumbs","priority":70,"render":true,"subName":"showCurrent","label":"Show Current Item","description":"Include the current post, term, or archive as the final item.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"schema":{"groupSlug":"contentBreadcrumbs","priority":80,"render":true,"subName":"schema","label":"Breadcrumb Schema","description":"Output Schema.org BreadcrumbList microdata.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/toggle","type":"field"}},"postType":{"groupSlug":"contentDataSource","priority":10,"render":true,"subName":"postType","label":"Service Post Type Slug","description":"Defaults to services. Change only if the CPT slug changes.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}},"taxonomy":{"groupSlug":"contentDataSource","priority":20,"render":true,"subName":"taxonomy","label":"Service Taxonomy Slug","description":"Defaults to service-category. Change only if the taxonomy slug changes.","features":{"sticky":false,"responsive":false,"hover":false,"dynamicContent":false},"component":{"name":"divi/text","type":"field"}}}}}},"linkText":{"type":"object","selector":"{{selector}} .rp-d5-breadcrumbs__link","settings":{"decoration":{"font":{"priority":10,"component":{"props":{"groupLabel":"Link Text","fieldLabel":"Link"}}}}}},"currentText":{"type":"object","selector":"{{selector}} .rp-d5-breadcrumbs__current","defaultPrintedStyle":{"decoration":{"font":{"font":{"desktop":{"value":{"weight":"600"}}}}}},"settings":{"decoration":{"font":{"priority":20,"component":{"props":{"groupLabel":"Current Item Text","fieldLabel":"Current Item"}}}}}},"separatorText":{"type":"object","selector":"{{selector}} .rp-d5-breadcrumbs__separator","settings":{"decoration":{"font":{"priority":30,"component":{"props":{"groupLabel":"Separator Text","fieldLabel":"Separator"}}}}}}},"customCssFields":{"nav":{"subName":"nav","label":"Breadcrumb Navigation","selectorSuffix":" .rp-d5-breadcrumbs__nav"},"list":{"subName":"list","label":"Breadcrumb List","selectorSuffix":" .rp-d5-breadcrumbs__list"},"item":{"subName":"item","label":"Breadcrumb Item","selectorSuffix":" .rp-d5-breadcrumbs__item"},"link":{"subName":"link","label":"Breadcrumb Link","selectorSuffix":" .rp-d5-breadcrumbs__link"},"current":{"subName":"current","label":"Current Item","selectorSuffix":" .rp-d5-breadcrumbs__current"},"separator":{"subName":"separator","label":"Separator","selectorSuffix":" .rp-d5-breadcrumbs__separator"}},"settings":{"content":"auto","design":"auto","advanced":"auto","groups":{"contentBreadcrumbs":{"panel":"content","priority":10,"groupName":"contentBreadcrumbs","multiElements":true,"component":{"name":"divi/composite","props":{"groupLabel":"Breadcrumbs"}}},"contentDataSource":{"panel":"content","priority":20,"groupName":"contentDataSource","multiElements":true,"component":{"name":"divi/composite","props":{"groupLabel":"Data Source"}}}}}};
-  var defaultAttrs = {"module":{"meta":{"adminLabel":{"desktop":{"value":"Service Breadcrumbs"}}}},"breadcrumb":{"innerContent":{"desktop":{"value":{"homeLabel":"Home","archiveLabel":"Services","separator":"/","ariaLabel":"Breadcrumb","postType":"services","taxonomy":"service-category","showHome":"on","showArchive":"on","showCurrent":"on","schema":"on"}}}}};
-  var defaultPrintedStyleAttrs = {"currentText":{"decoration":{"font":{"font":{"desktop":{"value":{"weight":"600"}}}}}}};
-  var ModuleContainer = moduleApi.ModuleContainer;
-  var StyleContainer = moduleApi.StyleContainer;
-  var CssStyle = moduleApi.CssStyle;
-
-  var cssFields = {
-    nav: { subName: 'nav', label: 'Breadcrumb Navigation', selectorSuffix: ' .rp-d5-breadcrumbs__nav' },
-    list: { subName: 'list', label: 'Breadcrumb List', selectorSuffix: ' .rp-d5-breadcrumbs__list' },
-    item: { subName: 'item', label: 'Breadcrumb Item', selectorSuffix: ' .rp-d5-breadcrumbs__item' },
-    link: { subName: 'link', label: 'Breadcrumb Link', selectorSuffix: ' .rp-d5-breadcrumbs__link' },
-    current: { subName: 'current', label: 'Current Item', selectorSuffix: ' .rp-d5-breadcrumbs__current' },
-    separator: { subName: 'separator', label: 'Separator', selectorSuffix: ' .rp-d5-breadcrumbs__separator' }
+  const fallbackPostTypes = {
+    auto: { label: 'Automatic (current request)' },
   };
 
-  function isOn(value) {
-    return ['on', 'yes', 'true', '1'].indexOf(String(value)) !== -1;
-  }
+  const fallbackTaxonomies = {
+    auto: { label: 'Automatic (best taxonomy for the post)' },
+    none: { label: 'None (omit taxonomy terms)' },
+  };
 
-  function getConfig(attrs) {
-    var value = attrs && attrs.breadcrumb && attrs.breadcrumb.innerContent &&
-      attrs.breadcrumb.innerContent.desktop && attrs.breadcrumb.innerContent.desktop.value;
+  const defaultAttrs = {
+    module: {
+      meta: {
+        adminLabel: {
+          desktop: { value: 'CPT Breadcrumbs' },
+        },
+      },
+    },
+    breadcrumb: {
+      innerContent: {
+        desktop: {
+          value: {
+            homeLabel: 'Home',
+            archiveLabel: '',
+            separator: '/',
+            ariaLabel: 'Breadcrumb',
+            postType: 'auto',
+            taxonomy: 'auto',
+            showHome: 'on',
+            showArchive: 'on',
+            showCurrent: 'on',
+            schema: 'on',
+          },
+        },
+      },
+    },
+  };
 
-    value = value || {};
+  const defaultPrintedStyleAttrs = {
+    currentText: {
+      decoration: {
+        font: {
+          font: {
+            desktop: {
+              value: { weight: '600' },
+            },
+          },
+        },
+      },
+    },
+  };
 
-    return {
-      homeLabel: value.homeLabel || 'Home',
-      archiveLabel: value.archiveLabel || 'Services',
-      separator: typeof value.separator === 'string' ? value.separator : '/',
-      ariaLabel: value.ariaLabel || 'Breadcrumb',
-      showHome: typeof value.showHome === 'undefined' ? 'on' : value.showHome,
-      showArchive: typeof value.showArchive === 'undefined' ? 'on' : value.showArchive,
-      showCurrent: typeof value.showCurrent === 'undefined' ? 'on' : value.showCurrent,
-      schema: typeof value.schema === 'undefined' ? 'on' : value.schema
-    };
-  }
+  const cssFields = {
+    nav: { subName: 'nav', label: 'Breadcrumb Navigation', selectorSuffix: ' .dcb-breadcrumbs__nav' },
+    list: { subName: 'list', label: 'Breadcrumb List', selectorSuffix: ' .dcb-breadcrumbs__list' },
+    item: { subName: 'item', label: 'Breadcrumb Item', selectorSuffix: ' .dcb-breadcrumbs__item' },
+    link: { subName: 'link', label: 'Breadcrumb Link', selectorSuffix: ' .dcb-breadcrumbs__link' },
+    current: { subName: 'current', label: 'Current Item', selectorSuffix: ' .dcb-breadcrumbs__current' },
+    separator: { subName: 'separator', label: 'Separator', selectorSuffix: ' .dcb-breadcrumbs__separator' },
+  };
 
-  function moduleClassnames(args) {
-    if (args && args.classnamesInstance) {
-      args.classnamesInstance.add('rp-d5-breadcrumbs--inline');
-      if (isOn(getConfig(args.attrs || {}).schema)) {
-        args.classnamesInstance.add('rp-d5-breadcrumbs--schema');
-      }
+  const isOn = value => ['on', 'yes', 'true', '1'].includes(String(value));
+
+  const humanizeSlug = (value, fallback) => {
+    const slug = String(value ?? '').trim();
+    if (!slug || 'auto' === slug) {
+      return fallback;
     }
-  }
 
-  function ModuleStyles(props) {
-    var attrs = props.attrs || {};
-    var elements = props.elements;
-    var settings = props.settings || {};
-    var children = [];
+    return slug
+      .replace(/[-_]+/g, ' ')
+      .replace(/\b\w/g, character => character.toUpperCase());
+  };
 
-    if (elements && elements.style) {
-      children.push(elements.style({
-        attrName: 'module',
-        styleProps: {
-          disabledOn: {
-            disabledModuleVisibility: settings.disabledModuleVisibility
+  const getStoredSourceValue = (attribute, key, fallback) => {
+    if (attribute?.getIn) {
+      return String(attribute.getIn(['desktop', 'value', key]) ?? fallback);
+    }
+
+    return String(attribute?.desktop?.value?.[key] ?? fallback);
+  };
+
+  const setSelectOptions = (groupConfiguration, fieldKey, fieldSuffix, options) => {
+    const fields = groupConfiguration?.contentDataSource?.component?.props?.fields;
+    if (!fields) {
+      return;
+    }
+
+    const resolvedKey = fields[fieldKey]
+      ? fieldKey
+      : Object.keys(fields).find(key => key.toLowerCase().endsWith(fieldSuffix.toLowerCase()));
+
+    if (!resolvedKey) {
+      return;
+    }
+
+    const field = fields[resolvedKey];
+    field.component = field.component ?? {};
+    field.component.props = field.component.props ?? {};
+    field.component.props.options = options;
+  };
+
+  const SettingsContent = ({ groupConfiguration }) => {
+    const [postTypes, setPostTypes] = React.useState(fallbackPostTypes);
+    const [taxonomies, setTaxonomies] = React.useState(fallbackTaxonomies);
+    const [taxonomyPostTypes, setTaxonomyPostTypes] = React.useState({});
+
+    const { currentPostType, currentTaxonomy } = useSelect(selectStore => {
+      const modalState = selectStore('divi/modal-library').getModal('divi/module');
+      const moduleId = modalState?.owner ?? '';
+      const sourceAttribute = selectStore('divi/edit-post').getModuleAttr(moduleId, 'breadcrumb.innerContent');
+
+      return {
+        currentPostType: getStoredSourceValue(sourceAttribute, 'postType', 'auto'),
+        currentTaxonomy: getStoredSourceValue(sourceAttribute, 'taxonomy', 'auto'),
+      };
+    });
+
+    React.useEffect(() => {
+      let mounted = true;
+
+      loggedFetch({
+        method: 'GET',
+        restRoute: '/divi-cpt-breadcrumbs/v1/data-sources',
+      })
+        .then(result => {
+          if (!mounted || !result || 'object' !== typeof result) {
+            return;
           }
+
+          setPostTypes(result.postTypes ?? fallbackPostTypes);
+          setTaxonomies(result.taxonomies ?? fallbackTaxonomies);
+          setTaxonomyPostTypes(result.taxonomyPostTypes ?? {});
+        })
+        .catch(() => {});
+
+      return () => {
+        mounted = false;
+      };
+    }, []);
+
+    const visibleTaxonomies = React.useMemo(() => {
+      if ('auto' === currentPostType) {
+        return taxonomies;
+      }
+
+      const options = {};
+      Object.entries(taxonomies).forEach(([taxonomy, option]) => {
+        if ('auto' === taxonomy || 'none' === taxonomy) {
+          options[taxonomy] = option;
+          return;
         }
-      }));
-      children.push(elements.style({ attrName: 'linkText' }));
-      children.push(elements.style({ attrName: 'currentText' }));
-      children.push(elements.style({ attrName: 'separatorText' }));
+
+        const supportedPostTypes = taxonomyPostTypes[taxonomy] ?? [];
+        if (supportedPostTypes.includes(currentPostType) || taxonomy === currentTaxonomy) {
+          options[taxonomy] = option;
+        }
+      });
+
+      return options;
+    }, [currentPostType, currentTaxonomy, taxonomies, taxonomyPostTypes]);
+
+    setSelectOptions(groupConfiguration, 'breadcrumbInnercontentPosttype', 'posttype', postTypes);
+    setSelectOptions(groupConfiguration, 'breadcrumbInnercontentTaxonomy', 'taxonomy', visibleTaxonomies);
+
+    return React.createElement(ModuleGroups, { groups: groupConfiguration });
+  };
+
+  const moduleClassnames = ({ classnamesInstance, attrs }) => {
+    classnamesInstance.add('dcb-breadcrumbs--inline');
+
+    const schema = attrs?.breadcrumb?.innerContent?.desktop?.value?.schema ?? 'on';
+    if (isOn(schema)) {
+      classnamesInstance.add('dcb-breadcrumbs--schema');
+    }
+  };
+
+  const ModuleStyles = ({
+    attrs,
+    elements,
+    settings,
+    orderClass,
+    mode,
+    state,
+    noStyleTag,
+  }) => React.createElement(
+    StyleContainer,
+    { mode, state, noStyleTag },
+    elements.style({
+      attrName: 'module',
+      styleProps: {
+        disabledOn: {
+          disabledModuleVisibility: settings?.disabledModuleVisibility,
+        },
+      },
+    }),
+    elements.style({ attrName: 'linkText' }),
+    elements.style({ attrName: 'currentText' }),
+    elements.style({ attrName: 'separatorText' }),
+    React.createElement(CssStyle, { selector: orderClass, attr: attrs.css, cssFields }),
+  );
+
+  const CptBreadcrumbsEdit = ({ attrs, elements, id, name }) => {
+    const value = attrs?.breadcrumb?.innerContent?.desktop?.value ?? {};
+    const items = [];
+
+    if (isOn(value.showHome ?? 'on')) {
+      items.push({ label: value.homeLabel || 'Home' });
     }
 
-    if (CssStyle) {
-      children.push(React.createElement(CssStyle, {
-        key: 'custom-css',
-        selector: props.orderClass,
-        attr: attrs.css,
-        cssFields: cssFields
-      }));
+    if (isOn(value.showArchive ?? 'on')) {
+      items.push({
+        label: value.archiveLabel || humanizeSlug(value.postType, 'Content Archive'),
+      });
     }
 
-    return React.createElement.apply(React, [StyleContainer, {
-      mode: props.mode,
-      state: props.state,
-      noStyleTag: props.noStyleTag
-    }].concat(children));
-  }
-
-  function preventNavigation(event) {
-    if (event && event.preventDefault) {
-      event.preventDefault();
-    }
-  }
-
-  function renderPreview(config) {
-    var items = [];
-
-    if (isOn(config.showHome)) {
-      items.push({ label: config.homeLabel, url: '#' });
-    }
-    if (isOn(config.showArchive)) {
-      items.push({ label: config.archiveLabel, url: '#' });
+    if ('none' !== String(value.taxonomy ?? 'auto')) {
+      items.push({ label: 'Parent Term' });
+      items.push({ label: humanizeSlug(value.taxonomy, 'Child Term') });
     }
 
-    items.push({ label: 'Residential', url: '#' });
-    items.push({ label: 'New Construction', url: '#' });
-
-    if (isOn(config.showCurrent)) {
-      items.push({ label: 'Current Service', current: true });
+    if (isOn(value.showCurrent ?? 'on')) {
+      items.push({ label: 'Current Item', current: true });
     }
 
-    var nodes = [];
-    items.forEach(function (item, index) {
-      var isLast = index === items.length - 1;
-      var itemChild;
-
-      if (!item.current) {
-        itemChild = React.createElement(
+    const separator = 'string' === typeof value.separator ? value.separator : '/';
+    const listChildren = items.map((item, index) => {
+      const content = item.current
+        ? React.createElement('span', { className: 'dcb-breadcrumbs__current', 'aria-current': 'page' }, item.label)
+        : React.createElement(
           'a',
-          { className: 'rp-d5-breadcrumbs__link', href: '#', onClick: preventNavigation },
-          item.label
+          {
+            className: 'dcb-breadcrumbs__link',
+            href: '#',
+            onClick: event => event.preventDefault(),
+          },
+          item.label,
         );
-      } else {
-        itemChild = React.createElement(
-          'span',
-          { className: 'rp-d5-breadcrumbs__current', 'aria-current': 'page' },
-          item.label
+      const children = [content];
+
+      if (index < items.length - 1) {
+        children.push(
+          React.createElement(
+            'span',
+            { className: 'dcb-breadcrumbs__separator', 'aria-hidden': 'true', key: `separator-${index}` },
+            separator,
+          ),
         );
       }
 
-      nodes.push(React.createElement(
+      return React.createElement(
         'li',
-        { className: 'rp-d5-breadcrumbs__item', key: 'item-' + index },
-        itemChild
-      ));
-
-      if (!isLast) {
-        nodes.push(React.createElement(
-          'li',
-          { className: 'rp-d5-breadcrumbs__separator', 'aria-hidden': 'true', key: 'separator-' + index },
-          config.separator
-        ));
-      }
+        { className: 'dcb-breadcrumbs__item', key: `item-${index}` },
+        ...children,
+      );
     });
 
     return React.createElement(
-      'nav',
-      { className: 'rp-d5-breadcrumbs__nav', 'aria-label': config.ariaLabel },
-      React.createElement.apply(React, ['ol', { className: 'rp-d5-breadcrumbs__list' }].concat(nodes))
+      ModuleContainer,
+      {
+        attrs,
+        elements,
+        id,
+        name,
+        stylesComponent: ModuleStyles,
+        classnamesFunction: moduleClassnames,
+      },
+      elements.styleComponents({ attrName: 'module' }),
+      React.createElement(
+        'nav',
+        { className: 'dcb-breadcrumbs__nav', 'aria-label': value.ariaLabel || 'Breadcrumb' },
+        React.createElement('ol', { className: 'dcb-breadcrumbs__list' }, ...listChildren),
+      ),
     );
-  }
-
-  function BreadcrumbsEdit(props) {
-    var children = [];
-    var elements = props.elements;
-
-    if (elements && elements.styleComponents) {
-      children.push(elements.styleComponents({ attrName: 'module' }));
-    }
-
-    children.push(renderPreview(getConfig(props.attrs || {})));
-
-    return React.createElement.apply(React, [ModuleContainer, {
-      attrs: props.attrs,
-      elements: props.elements,
-      id: props.id,
-      name: props.name,
-      stylesComponent: ModuleStyles,
-      classnamesFunction: moduleClassnames
-    }].concat(children));
-  }
-
-  var serviceBreadcrumbsIcon = {
-    name: 'reno-plus/module-service-breadcrumbs',
-    viewBox: '0 0 24 24',
-    component: function () {
-      return React.createElement('path', {
-        d: 'M3 4h5v5H3V4Zm7 1.5h5v2h-5v-2ZM17 4l4 2.5L17 9V4ZM3 15h5v5H3v-5Zm7 1.5h5v2h-5v-2Zm7-1.5 4 2.5L17 20v-5Z'
-      });
-    }
   };
 
-  hooks.addFilter('divi.iconLibrary.icon.map', 'renoPlus.serviceBreadcrumbs', function (icons) {
-    var nextIcons = Object.assign({}, icons);
-    nextIcons[serviceBreadcrumbsIcon.name] = serviceBreadcrumbsIcon;
-    return nextIcons;
-  });
+  const icon = {
+    name: 'burnt-arrow/module-cpt-breadcrumbs',
+    viewBox: '0 0 24 24',
+    component: () => React.createElement('path', {
+      d: 'M3 4h5v5H3V4Zm7 1.5h5v2h-5v-2ZM17 4l4 2.5L17 9V4ZM3 15h5v5H3v-5Zm7 1.5h5v2h-5v-2Zm7-1.5 4 2.5L17 20v-5Z',
+    }),
+  };
 
-  hooks.addAction(
+  addFilter('divi.iconLibrary.icon.map', 'burntArrow.cptBreadcrumbs', icons => ({
+    ...icons,
+    [icon.name]: icon,
+  }));
+
+  addAction(
     'divi.moduleLibrary.registerModuleLibraryStore.after',
-    'renoPlus.serviceBreadcrumbs',
-    function () {
-      moduleLibrary.registerModule(metadata, {
-        defaultAttrs: defaultAttrs,
-        defaultPrintedStyleAttrs: defaultPrintedStyleAttrs,
+    'burntArrow.cptBreadcrumbs',
+    () => {
+      registerModule(metadata, {
+        defaultAttrs,
+        defaultPrintedStyleAttrs,
+        settings: {
+          content: SettingsContent,
+        },
         renderers: {
-          edit: BreadcrumbsEdit
-        }
+          edit: CptBreadcrumbsEdit,
+        },
       });
-    }
+    },
   );
-}());
+})();

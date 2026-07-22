@@ -1,11 +1,11 @@
 {
-  "name": "reno-plus/service-breadcrumbs",
+  "name": "burnt-arrow/cpt-breadcrumbs",
   "d4Shortcode": "",
-  "title": "Service Breadcrumbs",
-  "titles": "Service Breadcrumbs",
-  "moduleIcon": "reno-plus/module-service-breadcrumbs",
-  "moduleClassName": "rp_d5_breadcrumbs",
-  "moduleOrderClassName": "rp_d5_breadcrumbs",
+  "title": "CPT Breadcrumbs",
+  "titles": "CPT Breadcrumbs",
+  "moduleIcon": "burnt-arrow/module-cpt-breadcrumbs",
+  "moduleClassName": "dcb_breadcrumbs",
+  "moduleOrderClassName": "dcb_breadcrumbs",
   "category": "module",
   "attributes": {
     "module": {
@@ -15,7 +15,7 @@
         "meta": {
           "adminLabel": {
             "desktop": {
-              "value": "Service Breadcrumbs"
+              "value": "CPT Breadcrumbs"
             }
           }
         }
@@ -54,11 +54,11 @@
           "desktop": {
             "value": {
               "homeLabel": "Home",
-              "archiveLabel": "Services",
+              "archiveLabel": "",
               "separator": "/",
               "ariaLabel": "Breadcrumb",
-              "postType": "services",
-              "taxonomy": "service-category",
+              "postType": "auto",
+              "taxonomy": "auto",
               "showHome": "on",
               "showArchive": "on",
               "showCurrent": "on",
@@ -94,8 +94,8 @@
               "priority": 20,
               "render": true,
               "subName": "archiveLabel",
-              "label": "Services Archive Label",
-              "description": "The label for the services post type archive breadcrumb.",
+              "label": "Archive Label Override",
+              "description": "Leave blank to use the registered post type or posts-page label.",
               "features": {
                 "sticky": false,
                 "responsive": false,
@@ -166,8 +166,8 @@
               "priority": 60,
               "render": true,
               "subName": "showArchive",
-              "label": "Show Services Archive",
-              "description": "Include the services archive before service categories.",
+              "label": "Show Post Type Archive",
+              "description": "Include the post type archive before taxonomy terms when that archive exists.",
               "features": {
                 "sticky": false,
                 "responsive": false,
@@ -220,8 +220,8 @@
               "priority": 10,
               "render": true,
               "subName": "postType",
-              "label": "Service Post Type Slug",
-              "description": "Defaults to services. Change only if the CPT slug changes.",
+              "label": "Post Type",
+              "description": "Choose a public post type. Automatic uses the current queried post type.",
               "features": {
                 "sticky": false,
                 "responsive": false,
@@ -229,8 +229,15 @@
                 "dynamicContent": false
               },
               "component": {
-                "name": "divi/text",
-                "type": "field"
+                "name": "divi/select",
+                "type": "field",
+                "props": {
+                  "options": {
+                    "auto": {
+                      "label": "Automatic (current request)"
+                    }
+                  }
+                }
               }
             },
             "taxonomy": {
@@ -238,8 +245,8 @@
               "priority": 20,
               "render": true,
               "subName": "taxonomy",
-              "label": "Service Taxonomy Slug",
-              "description": "Defaults to service-category. Change only if the taxonomy slug changes.",
+              "label": "Taxonomy",
+              "description": "Choose a taxonomy associated with the selected post type. Hierarchical taxonomies include their complete parent chain.",
               "features": {
                 "sticky": false,
                 "responsive": false,
@@ -247,8 +254,18 @@
                 "dynamicContent": false
               },
               "component": {
-                "name": "divi/text",
-                "type": "field"
+                "name": "divi/select",
+                "type": "field",
+                "props": {
+                  "options": {
+                    "auto": {
+                      "label": "Automatic (best taxonomy for the post)"
+                    },
+                    "none": {
+                      "label": "None (omit taxonomy terms)"
+                    }
+                  }
+                }
               }
             }
           }
@@ -257,7 +274,7 @@
     },
     "linkText": {
       "type": "object",
-      "selector": "{{selector}} .rp-d5-breadcrumbs__link",
+      "selector": "{{selector}} .dcb-breadcrumbs__link",
       "settings": {
         "decoration": {
           "font": {
@@ -274,7 +291,7 @@
     },
     "currentText": {
       "type": "object",
-      "selector": "{{selector}} .rp-d5-breadcrumbs__current",
+      "selector": "{{selector}} .dcb-breadcrumbs__current",
       "defaultPrintedStyle": {
         "decoration": {
           "font": {
@@ -304,7 +321,7 @@
     },
     "separatorText": {
       "type": "object",
-      "selector": "{{selector}} .rp-d5-breadcrumbs__separator",
+      "selector": "{{selector}} .dcb-breadcrumbs__separator",
       "settings": {
         "decoration": {
           "font": {
@@ -324,32 +341,32 @@
     "nav": {
       "subName": "nav",
       "label": "Breadcrumb Navigation",
-      "selectorSuffix": " .rp-d5-breadcrumbs__nav"
+      "selectorSuffix": " .dcb-breadcrumbs__nav"
     },
     "list": {
       "subName": "list",
       "label": "Breadcrumb List",
-      "selectorSuffix": " .rp-d5-breadcrumbs__list"
+      "selectorSuffix": " .dcb-breadcrumbs__list"
     },
     "item": {
       "subName": "item",
       "label": "Breadcrumb Item",
-      "selectorSuffix": " .rp-d5-breadcrumbs__item"
+      "selectorSuffix": " .dcb-breadcrumbs__item"
     },
     "link": {
       "subName": "link",
       "label": "Breadcrumb Link",
-      "selectorSuffix": " .rp-d5-breadcrumbs__link"
+      "selectorSuffix": " .dcb-breadcrumbs__link"
     },
     "current": {
       "subName": "current",
       "label": "Current Item",
-      "selectorSuffix": " .rp-d5-breadcrumbs__current"
+      "selectorSuffix": " .dcb-breadcrumbs__current"
     },
     "separator": {
       "subName": "separator",
       "label": "Separator",
-      "selectorSuffix": " .rp-d5-breadcrumbs__separator"
+      "selectorSuffix": " .dcb-breadcrumbs__separator"
     }
   },
   "settings": {

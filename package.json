@@ -1,12 +1,16 @@
 {
-  "name": "reno-plus-divi5-breadcrumbs",
-  "version": "0.1.0",
+  "name": "divi-cpt-breadcrumbs",
+  "version": "0.2.0",
   "private": true,
-  "description": "A native Divi 5 breadcrumb module for hierarchical service URLs.",
+  "description": "A native Divi 5 breadcrumb module for any public post type and taxonomy.",
+  "repository": "https://github.com/burntarrow/DIVI-CPT-BREADCRUMB",
   "scripts": {
     "start": "NODE_ENV=development webpack -w --config webpack.config.js --progress",
     "build": "NODE_ENV=production webpack --config webpack.config.js --progress",
     "check:js": "node --check scripts/bundle.js",
+    "test:php": "php tests/data-source-smoke.php && php tests/resolver-smoke.php && php tests/markup-smoke.php && php tests/metadata-smoke.php",
+    "test:js": "node tests/bundle-smoke.js",
+    "test": "npm run test:php && npm run test:js",
     "zip": "bash bin/build-release.sh"
   },
   "engines": {
@@ -15,13 +19,17 @@
   },
   "devDependencies": {
     "@divi/types": "npm:divi-types@^1.0.10",
+    "@types/divi__data": "npm:divi-types-data@^1.0.10",
     "@types/divi__module": "npm:divi-types-module@^1.0.10",
     "@types/divi__module-library": "npm:divi-types-module-library@^1.0.10",
+    "@types/divi__rest": "npm:divi-types-rest@^1.0.10",
+    "@types/lodash": "^4.17.7",
     "@types/react": "18.3.1",
     "@types/react-dom": "18.3.0",
     "@wordpress/hooks": "^3.57.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.1",
+    "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.9.0",
     "react": "^18.2.0",
     "sass": "^1.77.0",

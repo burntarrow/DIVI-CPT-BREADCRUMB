@@ -1,4 +1,4 @@
 import type { ModuleLibrary } from '@divi/types';
 
-export type ServiceBreadcrumbsAttrs = Record<string, any>;
-export type ServiceBreadcrumbsEditProps = ModuleLibrary.Module.EditProps<ServiceBreadcrumbsAttrs>;
+export type CptBreadcrumbsAttrs = Record<string, any>;
+export type CptBreadcrumbsEditProps = ModuleLibrary.Module.EditProps<CptBreadcrumbsAttrs>;
